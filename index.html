@@ -2,10 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream Forwarder</title>
     <style>
-        body { background: #000; color: #222; margin: 0; overflow: hidden; }
+        body { background-color: #000; color: #111; overflow: hidden; }
     </style>
 </head>
 <body>
@@ -21,23 +20,25 @@
     </audio>
 
     <script>
-        window.addEventListener('load', () => {
+        window.addEventListener('load', async function() {
             const s1 = document.getElementById('stream1');
             const s2 = document.getElementById('stream2');
 
-            // Force play attempt on load
-            const playStreams = () => {
-                s1.play().catch(e => console.log("Autoplay blocked by browser. Click anywhere to start."));
-                s2.play().catch(e => {});
+            const playStreams = async () => {
+                for (const stream of [s1, s2]) {
+                    stream.muted = true;
+                    try {
+                        await stream.play();
+                        stream.muted = false;
+                    } catch (e) {
+                        console.log(`Stream ${stream.id} blocked on autoplay:`, e);
+                    }
+                }
             };
 
-            playStreams();
-
-            // Fallback: If browser blocks autoplay, play on the first click anywhere
-            document.body.addEventListener('click', () => {
-                playStreams();
-            }, { once: true });
+            await playStreams();
         });
     </script>
+
 </body>
 </html>
