@@ -3,72 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dual Stream Forwarder</title>
+    <title>Stream Forwarder</title>
     <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #121212;
-            color: white;
-        }
-        .controls {
-            padding: 20px;
-            border: 2px solid #333;
-            border-radius: 10px;
-            text-align: center;
-        }
-        button {
-            padding: 15px 30px;
-            font-size: 18px;
-            cursor: pointer;
-            background-color: #1DB954;
-            border: none;
-            color: white;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        .status {
-            margin-top: 15px;
-            font-size: 14px;
-            color: #bbb;
-        }
+        body { background: #000; color: #222; margin: 0; overflow: hidden; }
     </style>
 </head>
 <body>
 
-    <div class="controls">
-        <h2>Dual Audio Stream</h2>
-        <button id="playBtn">START STREAMS</button>
-        <div class="status" id="status">Status: Ready</div>
-    </div>
+    <!-- Stream 1 -->
+    <audio id="stream1" autoplay crossorigin="anonymous">
+        <source src="https://usa5.fastcast4u.com/proxy/mcbnjpr?mp=/1" type="audio/mpeg">
+    </audio>
 
-    <!-- Hidden Audio Elements -->
-    <audio id="stream1" src="https://usa5.fastcast4u.com/proxy/mcbnjpr?mp=/1" preload="none"></audio>
-    <audio id="stream2" src="https://maggie.torontocast.com:8108/;" preload="none"></audio>
+    <!-- Stream 2 -->
+    <audio id="stream2" autoplay crossorigin="anonymous">
+        <source src="https://maggie.torontocast.com:8108/;" type="audio/mpeg">
+    </audio>
 
     <script>
-        const playBtn = document.getElementById('playBtn');
-        const s1 = document.getElementById('stream1');
-        const s2 = document.getElementById('stream2');
-        const status = document.getElementById('status');
+        window.addEventListener('load', () => {
+            const s1 = document.getElementById('stream1');
+            const s2 = document.getElementById('stream2');
 
-        playBtn.addEventListener('click', () => {
-            // Attempt to play both
-            Promise.all([s1.play(), s2.play()])
-                .then(() => {
-                    status.textContent = "Status: Playing both streams...";
-                    playBtn.textContent = "STREAMS ACTIVE";
-                    playBtn.disabled = true;
-                    playBtn.style.backgroundColor = "#555";
-                })
-                .catch(error => {
-                    status.textContent = "Error: Check browser permissions or stream status.";
-                    console.error("Playback failed:", error);
-                });
+            // Force play attempt on load
+            const playStreams = () => {
+                s1.play().catch(e => console.log("Autoplay blocked by browser. Click anywhere to start."));
+                s2.play().catch(e => {});
+            };
+
+            playStreams();
+
+            // Fallback: If browser blocks autoplay, play on the first click anywhere
+            document.body.addEventListener('click', () => {
+                playStreams();
+            }, { once: true });
         });
     </script>
 </body>
